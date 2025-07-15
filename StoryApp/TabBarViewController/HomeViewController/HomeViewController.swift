@@ -61,7 +61,7 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
 
         setupScrollView()
         setupCarousel()
@@ -240,11 +240,11 @@ class HomeViewController: UIViewController, UICollectionViewDataSource, UICollec
         return container
     }
 
-
     @objc func didTapHot() {
         let vc = HotComicsViewController()
         navigationController?.pushViewController(vc, animated: true)
     }
+    
     @objc func didTapGenre() {
         let vc = GenreFilterViewController()
         vc.comics = chineseComics + koreanComics + textComics
@@ -399,6 +399,7 @@ extension HomeViewController: UISearchBarDelegate {
 
         searchResultsCollectionView.isHidden = searchResults.isEmpty
         searchResultsCollectionView.reloadData()
+        searchResultsCollectionView.backgroundColor = .systemBackground
     }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {

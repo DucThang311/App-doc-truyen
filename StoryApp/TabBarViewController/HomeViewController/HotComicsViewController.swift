@@ -20,8 +20,8 @@ class HotComicsViewController: UIViewController, UICollectionViewDataSource, UIC
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Truyện HOT"
-        view.backgroundColor = .white
+        title = "Truyện Hot"
+        view.backgroundColor = .systemBackground
 
         setupCollectionView()
         loadHotComicsFromAPI()
@@ -29,7 +29,7 @@ class HotComicsViewController: UIViewController, UICollectionViewDataSource, UIC
 
     private func setupCollectionView() {
         collectionView.frame = view.bounds
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .systemBackground
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(ComicCell.self, forCellWithReuseIdentifier: ComicCell.identifier)

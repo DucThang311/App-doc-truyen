@@ -23,7 +23,7 @@ class FollowViewController: UIViewController, UICollectionViewDataSource, UIColl
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
 
         // Tạo collectionView nhưng chưa add vào view
         let layout = UICollectionViewFlowLayout()
@@ -50,8 +50,15 @@ class FollowViewController: UIViewController, UICollectionViewDataSource, UIColl
 
         if isLoggedIn {
             if !collectionView.isDescendant(of: view) {
-                collectionView.frame = view.bounds
+                collectionView.translatesAutoresizingMaskIntoConstraints = false
                 view.addSubview(collectionView)
+
+                NSLayoutConstraint.activate([
+                    collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                    collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                    collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                    collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+                ])
             }
             loadFavoriteComics()
         } else {

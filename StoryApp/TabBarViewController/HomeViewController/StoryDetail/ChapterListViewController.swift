@@ -7,36 +7,82 @@
 
 import UIKit
 
-class ChaptersViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-    var comic: Comic?
-    private let tableView = UITableView()
+protocol ChaptersViewControllerDelegate: AnyObject {
+    func chaptersViewDidUpdateContentSize(_ size: CGSize)
+}
 
+class ChaptersViewController: UITableViewController {
+    var comic: Comic? {
+        didSet {
+            tableView.reloadData()
+            notifyContentSizeChanged()
+        }
+    }
+    
+    weak var delegate: ChaptersViewControllerDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-
-        tableView.frame = view.bounds
-        tableView.dataSource = self
-        tableView.delegate = self
-        view.addSubview(tableView)
+        setupUI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+    
+    private func setupUI() {
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.isScrollEnabled = false
+        tableView.separatorStyle = .singleLine
+        tableView.tableFooterView = UIView()
+        tableView.estimatedRowHeight = 44
+        tableView.rowHeight = UITableView.automaticDimension
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Force update content size khi view xuất hiện
+        notifyContentSizeChanged()
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        comic?.chapters?.count ?? 0
+    private func notifyContentSizeChanged() {
+        DispatchQueue.main.async {
+            self.tableView.layoutIfNeeded()
+            let contentSize = self.tableView.contentSize
+            self.delegate?.chaptersViewDidUpdateContentSize(contentSize)
+            
+        }
     }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let chapter = comic?.chapters?[indexPath.row]
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
-        cell.textLabel?.text = chapter?.title
-        cell.detailTextLabel?.text = chapter?.isLocked == true ? "🔒" : "🆓"
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return comic?.chapters?.count ?? 0
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        guard let chapter = comic?.chapters?[indexPath.row] else { return cell }
+        
+        var config = UIListContentConfiguration.valueCell()
+        config.text = chapter.title
+        config.secondaryText = chapter.isLocked ? "🔒" : "🆓"
+        cell.contentConfiguration = config
+        cell.accessoryType = .disclosureIndicator
         return cell
     }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let chapter = comic?.chapters?[indexPath.row] else { return }
         let readerVC = ChapterReaderViewController()
         readerVC.chapter = chapter
         navigationController?.pushViewController(readerVC, animated: true)
+    }
+    
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        notifyContentSizeChanged()
+    }
+    
+    deinit {
+        delegate = nil
     }
 }

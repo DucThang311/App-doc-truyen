@@ -16,7 +16,7 @@ class ChapterReaderViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         title = chapter?.title ?? "Đọc truyện"
 
         scrollView.translatesAutoresizingMaskIntoConstraints = false

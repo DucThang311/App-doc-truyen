@@ -7,6 +7,8 @@
 
 import UIKit
 
+let darkModeKey = "darkModeEnabled"
+
 class AccountViewController: UIViewController {
 
     private let tableView = UITableView(frame: .zero, style: .plain)
@@ -21,7 +23,7 @@ class AccountViewController: UIViewController {
             ]),
             ("Cài đặt", [
                 AccountItem(icon: "dollarsign.circle", title: "Donate"),
-                AccountItem(icon: "moon.fill", title: "Chế độ nền tối", isToggle: true, isOn: false)
+                AccountItem(icon: "moon.fill", title: "Chế độ nền tối", isToggle: true, isOn: UserDefaults.standard.bool(forKey: darkModeKey))
             ]),
             ("Hỗ trợ người dùng", [
                 AccountItem(icon: "shield.fill", title: "Điều khoản sử dụng")
@@ -42,6 +44,9 @@ class AccountViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setupTableView()
+        
+        let isDarkMode = UserDefaults.standard.bool(forKey: darkModeKey)
+        applyDarkMode(isOn: isDarkMode)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -97,7 +102,22 @@ extension AccountViewController: UITableViewDataSource {
         let item = sections[indexPath.section].items[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: "AccountCell", for: indexPath) as! AccountCell
         cell.configure(with: item)
+
+        if item.title == "Chế độ nền tối" {
+            cell.onToggleChanged = { [weak self] isOn in
+                UserDefaults.standard.set(isOn, forKey: darkModeKey)
+                self?.applyDarkMode(isOn: isOn)
+            }
+        }
+
         return cell
+    }
+    
+    private func applyDarkMode(isOn: Bool) {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.overrideUserInterfaceStyle = isOn ? .dark : .light
+        }
     }
 }
 
@@ -158,6 +178,9 @@ class AccountCell: UITableViewCell {
     private let titleLabel = UILabel()
     private let toggleSwitch = UISwitch()
 
+    // Thêm callback
+    var onToggleChanged: ((Bool) -> Void)?
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
@@ -178,6 +201,11 @@ class AccountCell: UITableViewCell {
         toggleSwitch.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(toggleSwitch)
 
+        // Gán target
+        toggleSwitch.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
+        toggleSwitch.addTarget(self, action: #selector(toggleChanged(_:)), for: .valueChanged)
+
+
         NSLayoutConstraint.activate([
             iconImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             iconImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
@@ -191,6 +219,19 @@ class AccountCell: UITableViewCell {
             toggleSwitch.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
+    
+    @objc private func toggleChanged(_ sender: UISwitch) {
+        UserDefaults.standard.set(sender.isOn, forKey: "isDarkMode")
+
+        let style: UIUserInterfaceStyle = sender.isOn ? .dark : .light
+        UIApplication.shared.windows.forEach { window in
+            window.overrideUserInterfaceStyle = style
+        }
+    }
+
+    @objc private func switchChanged(_ sender: UISwitch) {
+        onToggleChanged?(sender.isOn)
+    }
 
     func configure(with item: AccountItem) {
         iconImageView.image = UIImage(systemName: item.icon)
@@ -200,6 +241,7 @@ class AccountCell: UITableViewCell {
         accessoryType = item.isToggle ? .none : .disclosureIndicator
     }
 }
+
 
 extension UIViewController {
     func showAlert(title: String = "Thông báo", message: String, completion: (() -> Void)? = nil) {

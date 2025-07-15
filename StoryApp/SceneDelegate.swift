@@ -22,6 +22,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = MainTabBarViewController()
         
         window?.makeKeyAndVisible()
+        
+        let isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
+        UIApplication.shared.windows.forEach { window in
+            window.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+        }
+        
+//        let isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
+//        if isDarkMode {
+//            UIApplication.shared.windows.forEach { window in
+//                window.overrideUserInterfaceStyle = .dark
+//            }
+//        } else {
+//            UIApplication.shared.windows.forEach { window in
+//                window.overrideUserInterfaceStyle = .light
+//            }
+//        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

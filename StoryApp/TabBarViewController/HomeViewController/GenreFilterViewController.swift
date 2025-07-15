@@ -39,14 +39,14 @@ class GenreFilterViewController: UIViewController, UICollectionViewDataSource, U
         layout.minimumInteritemSpacing = 10
         layout.itemSize = CGSize(width: UIScreen.main.bounds.width/3 - 16, height: 180)
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = .white
+        cv.backgroundColor = .systemBackground
         cv.register(ComicCell.self, forCellWithReuseIdentifier: ComicCell.identifier)
         return cv
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         title = "Thể loại truyện"
         setupGenreButtons()
         setupCollectionView()

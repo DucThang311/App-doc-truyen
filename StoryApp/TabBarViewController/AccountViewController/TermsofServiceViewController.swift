@@ -11,7 +11,7 @@ class TermsofServiceViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
 
         let backButton = UIButton(type: .system)
         backButton.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
